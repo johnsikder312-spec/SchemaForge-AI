@@ -37,13 +37,13 @@ class ProjectSummary(BaseModel):
 
     id: str
     name: str
+    description: str
     sql_dialect: str
     created_at: datetime
     updated_at: datetime
 
 
 class ProjectOut(ProjectSummary):
-    description: str
     # Populated from the ORM's `schema_json` column via a computed accessor
     # on the endpoint (see api/projects.py `_to_out`).
     schema_data: SchemaResponse

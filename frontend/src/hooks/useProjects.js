@@ -16,21 +16,27 @@ export default function useProjects() {
   const [projects, setProjects] = useState([])
   const [currentId, setCurrentId] = useState(null)
   const [available, setAvailable] = useState(true)
+  const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
   const refresh = useCallback(async () => {
+    setLoading(true)
     try {
       const rows = await listProjects()
       setProjects(rows)
       setAvailable(true)
+      setError('')
     } catch (err) {
       if (err instanceof ApiError && err.status === 503) {
         setAvailable(false)
         setProjects([])
+        setError('')
       } else {
         setError(err.message || 'Could not load projects.')
       }
+    } finally {
+      setLoading(false)
     }
   }, [])
 
@@ -88,6 +94,7 @@ export default function useProjects() {
     currentId,
     current: projects.find((p) => p.id === currentId) ?? null,
     available,
+    loading,
     busy,
     error,
     refresh,

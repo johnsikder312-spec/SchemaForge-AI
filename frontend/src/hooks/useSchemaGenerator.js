@@ -129,6 +129,17 @@ export default function useSchemaGenerator() {
     }
   }
 
+  // Start a fresh, empty workspace (for "create new project").
+  const reset = () => {
+    setIdea('')
+    setSchema(null)
+    setError('')
+    setEditorError('')
+    setAssistantError('')
+    setMessages([])
+    setSqlDialect('postgresql')
+  }
+
   return {
     idea,
     setIdea,
@@ -136,6 +147,7 @@ export default function useSchemaGenerator() {
     error,
     schema,
     generate,
+    reset,
     sqlDialect,
     setSqlDialect,
     loadSchema,

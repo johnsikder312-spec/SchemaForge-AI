@@ -200,9 +200,15 @@ whenever the schema structure changes and groups the findings by severity.
 
 The frontend has a PostgreSQL / MySQL / SQLite switcher; changing it
 regenerates the displayed SQL instantly (no new request). Copy button copies
-the selected dialect. The **Project** bar (top of the page) saves the current
-schema, description and selected dialect, and reloads them when a saved
-project is opened.
+the selected dialect. The **Project** bar (top of the workspace) saves the
+current schema, description and selected dialect, and reloads them when a
+saved project is opened.
+
+The **Projects** view (navbar → "Projects") is a dashboard of saved projects
+— each card shows the name, short description, created date, last-updated date
+and SQL dialect, with Open / Delete actions and a "New project" button. It has
+loading (skeletons), empty, error (with retry) and "persistence disabled"
+states.
 
 Error responses use `{"detail": "..."}` — `422` for an empty/invalid body, or
 for a generated schema that fails structural validation (the `detail` string

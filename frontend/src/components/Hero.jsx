@@ -29,6 +29,7 @@ export default function Hero({
   analysis,
   projects,
   onLoadProject,
+  onNewProject,
 }) {
   return (
     <section id="home" className="relative overflow-hidden">
@@ -60,7 +61,7 @@ export default function Hero({
               description={idea}
               sqlDialect={sqlDialect}
               onLoadProject={onLoadProject}
-              onNewProject={() => {}}
+              onNewProject={onNewProject}
             />
           </div>
         ) : null}
