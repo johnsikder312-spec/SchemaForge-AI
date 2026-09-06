@@ -1,7 +1,7 @@
 import Container from './Container'
 import IdeaComposer from './IdeaComposer'
 import ExampleGrid from './ExampleGrid'
-import SchemaResult from './SchemaResult'
+import SchemaViewer from './schema/SchemaViewer'
 
 // Homepage hero: heading, description, idea composer, result, and example cards.
 export default function Hero({
@@ -45,7 +45,10 @@ export default function Hero({
             loading={loading}
             error={error}
           />
-          <SchemaResult schema={schema} />
+        </div>
+
+        <div className="mt-10">
+          <SchemaViewer schema={schema} loading={loading} />
         </div>
 
         <div
