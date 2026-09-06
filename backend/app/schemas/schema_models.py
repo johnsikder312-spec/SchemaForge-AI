@@ -49,9 +49,13 @@ class SchemaResponse(BaseModel):
 
 class GeneratedSchema(SchemaResponse):
     """The API response: the validated schema plus deterministically
-    generated SQL. `SchemaResponse` remains the AI output contract."""
+    generated SQL for every supported dialect. `SchemaResponse` remains the
+    AI output contract."""
 
-    sql: str = Field(
-        default="",
-        description="Deterministically generated PostgreSQL DDL for the schema.",
+    sql: dict[str, str] = Field(
+        default_factory=dict,
+        description=(
+            "Deterministically generated DDL keyed by dialect: "
+            "'postgresql', 'mysql', 'sqlite'."
+        ),
     )

@@ -1,24 +1,42 @@
 import { useEffect, useMemo, useState } from 'react'
 import { highlightSql } from './highlightSql'
 
-// Shows the deterministically generated PostgreSQL DDL (from the backend)
-// with a copy button. Kept separate from the schema viewer and ER diagram.
+// Dialects the backend generates SQL for, in display order.
+const DIALECTS = [
+  { key: 'postgresql', label: 'PostgreSQL' },
+  { key: 'mysql', label: 'MySQL' },
+  { key: 'sqlite', label: 'SQLite' },
+]
+
+// Shows the deterministically generated DDL (from the backend) for the
+// selected database system, with a dialect switcher and a copy button.
+// Kept separate from the schema viewer and ER diagram.
 export default function SqlView({ sql }) {
+  const available = DIALECTS.filter((d) => typeof sql?.[d.key] === 'string')
+  const [dialect, setDialect] = useState('postgresql')
   const [copied, setCopied] = useState(false)
 
-  // Re-highlight only when the SQL string actually changes.
-  const highlighted = useMemo(() => highlightSql(sql), [sql])
-  const lineCount = useMemo(() => (sql ? sql.split('\n').length : 0), [sql])
+  // Fall back to the first available dialect if the selected one is missing.
+  const activeKey = sql?.[dialect] != null ? dialect : available[0]?.key
+  const currentSql = activeKey ? sql[activeKey] : ''
+
+  // Changing the selected database regenerates the displayed SQL automatically:
+  // currentSql changes, so the highlight and line count recompute.
+  const highlighted = useMemo(() => highlightSql(currentSql), [currentSql])
+  const lineCount = useMemo(
+    () => (currentSql ? currentSql.split('\n').length : 0),
+    [currentSql],
+  )
 
   useEffect(() => {
     setCopied(false)
-  }, [sql])
+  }, [currentSql])
 
-  if (!sql) return null
+  if (!currentSql) return null
 
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(sql)
+      await navigator.clipboard.writeText(currentSql)
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
     } catch {
@@ -28,12 +46,30 @@ export default function SqlView({ sql }) {
 
   return (
     <div className="animate-fade-up overflow-hidden rounded-xl border border-slate-800">
-      <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900/60 px-4 py-2.5">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 bg-slate-900/60 px-4 py-2.5">
+        <div className="flex items-center gap-3">
           <h3 className="text-sm font-semibold text-white">SQL</h3>
-          <span className="rounded bg-slate-800 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide text-slate-400">
-            PostgreSQL
-          </span>
+          <div
+            role="group"
+            aria-label="Database system"
+            className="flex rounded-md border border-slate-700 p-0.5"
+          >
+            {available.map((d) => (
+              <button
+                key={d.key}
+                type="button"
+                aria-pressed={d.key === activeKey}
+                onClick={() => setDialect(d.key)}
+                className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
+                  d.key === activeKey
+                    ? 'bg-indigo-500 text-white'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                {d.label}
+              </button>
+            ))}
+          </div>
         </div>
         <button
           type="button"

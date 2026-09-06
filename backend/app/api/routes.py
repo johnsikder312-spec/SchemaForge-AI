@@ -6,7 +6,7 @@ from app.schemas.schema_models import GeneratedSchema, SchemaRequest
 from app.services import ai_service
 from app.services.ai_service import AIServiceError
 from app.services.schema_validator import SchemaValidationError
-from app.services.sql_generator import generate_postgres_sql
+from app.services.sql import generate_all_sql
 
 logger = logging.getLogger("schemaforge.api")
 
@@ -38,6 +38,6 @@ def generate_schema(payload: SchemaRequest) -> GeneratedSchema:
             detail="Unexpected error while generating the schema.",
         )
 
-    # Deterministic, non-AI SQL generation from the validated schema.
-    sql = generate_postgres_sql(schema)
+    # Deterministic, non-AI SQL generation for every supported dialect.
+    sql = generate_all_sql(schema)
     return GeneratedSchema(**schema.model_dump(), sql=sql)

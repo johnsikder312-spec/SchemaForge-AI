@@ -2,7 +2,8 @@
 
 Describe an application idea in natural language and SchemaForge AI generates a
 database schema — project name, tables, columns, data types, primary/foreign
-keys, and relationships. (ER diagram and SQL export come in later phases.)
+keys, and relationships — an interactive ER diagram, and ready-to-run SQL for
+PostgreSQL, MySQL, and SQLite.
 
 ## Tech Stack
 
@@ -17,7 +18,7 @@ keys, and relationships. (ER diagram and SQL export come in later phases.)
 SchemaForge-AI/
 ├── frontend/                 React + Vite + Tailwind app
 │   └── src/
-│       ├── components/       Navbar, Hero, schema/ (SchemaViewer, TableCard, ColumnRow), ...
+│       ├── components/       Navbar, Hero, schema/ (viewer), er/ (ER diagram), sql/ (SQL view)
 │       ├── hooks/            useSchemaGenerator
 │       ├── lib/              api.js  (calls POST /generate-schema)
 │       └── data/             example ideas
@@ -27,7 +28,10 @@ SchemaForge-AI/
 │   │   ├── config.py         env / .env loading (API key stays here)
 │   │   ├── api/routes.py     GET / , POST /generate-schema
 │   │   ├── schemas/          Pydantic models
-│   │   └── services/ai_service.py   Claude-powered schema generation
+│   │   └── services/
+│   │       ├── ai_service.py         Claude-powered schema generation
+│   │       ├── schema_validator.py   structural validation rules
+│   │       └── sql/                  deterministic per-dialect SQL (pg / mysql / sqlite)
 │   ├── requirements.txt
 │   ├── .env.example
 │   └── .env                  (git-ignored — your real key goes here)
@@ -100,15 +104,27 @@ the generated tables render as cards.
       "target_table": "users", "target_column": "id",
       "relationship_type": "many_to_one" }
   ],
-  "sql": "-- PostgreSQL schema for ...\nCREATE TABLE users (\n    id SERIAL PRIMARY KEY,\n    ...\n);\n..."
+  "sql": {
+    "postgresql": "-- PostgreSQL schema for ...\nCREATE TABLE users (\n    id SERIAL PRIMARY KEY, ...\n);\n...",
+    "mysql":      "-- MySQL schema for ...\nCREATE TABLE users (\n    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, ...\n);\n...",
+    "sqlite":     "-- SQLite schema for ...\nCREATE TABLE users (\n    id INTEGER PRIMARY KEY AUTOINCREMENT, ...\n);\n..."
+  }
 }
 ```
 
-`sql` is generated deterministically from the validated schema (no AI) —
-PostgreSQL `CREATE TABLE` statements with primary keys, plus `ALTER TABLE ...
-ADD CONSTRAINT ... FOREIGN KEY` for each relationship. Integer sole primary
-keys become `SERIAL` / `BIGSERIAL`. The frontend shows it with a copy button
-and refreshes it whenever a new schema is generated.
+`sql` is generated deterministically from the validated schema (no AI), one
+entry per dialect. Each dialect has its own generator
+(`backend/app/services/sql/`) handling the differences:
+
+| | Auto-increment PK | Types | Foreign keys |
+| --- | --- | --- | --- |
+| PostgreSQL | `SERIAL` / `BIGSERIAL` | native (`BOOLEAN`, `JSONB`, `UUID`, `TIMESTAMP WITH TIME ZONE`) | `ALTER TABLE ... ADD CONSTRAINT` |
+| MySQL | `INT ... AUTO_INCREMENT` | `TINYINT(1)`, `JSON`, `CHAR(36)`, `DATETIME`, `DECIMAL` | `ALTER TABLE ... ADD CONSTRAINT` |
+| SQLite | `INTEGER PRIMARY KEY AUTOINCREMENT` | affinity: `TEXT` / `INTEGER` / `NUMERIC` / `REAL` / `BLOB` | inline `FOREIGN KEY (...)` in `CREATE TABLE` |
+
+The frontend has a PostgreSQL / MySQL / SQLite switcher; changing it
+regenerates the displayed SQL instantly (no new request). Copy button copies
+the selected dialect.
 
 Error responses use `{"detail": "..."}` — `422` for an empty/invalid body, or
 for a generated schema that fails structural validation (the `detail` string

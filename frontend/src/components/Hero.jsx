@@ -59,7 +59,7 @@ export default function Hero({
           </div>
         ) : null}
 
-        {!loading && schema?.sql ? (
+        {!loading && schema?.sql && Object.keys(schema.sql).length > 0 ? (
           <div className="mt-8">
             <SqlView sql={schema.sql} />
           </div>
