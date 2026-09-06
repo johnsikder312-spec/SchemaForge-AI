@@ -103,10 +103,17 @@ the generated tables render as cards.
 }
 ```
 
-Error responses use `{"detail": "..."}` — `422` for an empty/invalid body,
+Error responses use `{"detail": "..."}` — `422` for an empty/invalid body, or
+for a generated schema that fails structural validation (the `detail` string
+lists every problem, one per line; the schema is never silently corrected),
 `502` for a handled AI failure (not configured, rate limited, malformed AI
 output, refusal), `500` for anything unexpected. Malformed AI JSON never
 crashes the server.
+
+Schema validation rules: every table has a primary key; table and column names
+are lowercase snake_case; no duplicate table or column names; foreign-key
+columns are backed by a relationship; relationships reference real tables and
+columns; column data types are recognisable SQL types.
 
 ## Notes
 

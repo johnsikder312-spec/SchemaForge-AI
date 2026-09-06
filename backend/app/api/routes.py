@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException
 from app.schemas.schema_models import SchemaRequest, SchemaResponse
 from app.services import ai_service
 from app.services.ai_service import AIServiceError
+from app.services.schema_validator import SchemaValidationError
 
 logger = logging.getLogger("schemaforge.api")
 
@@ -20,6 +21,11 @@ def read_root():
 def generate_schema(payload: SchemaRequest) -> SchemaResponse:
     try:
         return ai_service.generate_schema(payload.description)
+    except SchemaValidationError as exc:
+        # The AI produced a schema that breaks one or more validation rules.
+        # Report every problem; the schema is never silently corrected.
+        logger.warning("Schema validation failed: %s", exc)
+        raise HTTPException(status_code=422, detail=str(exc))
     except AIServiceError as exc:
         # Expected, handled failure (misconfig, rate limit, bad AI output, ...).
         logger.warning("Schema generation failed: %s", exc)
