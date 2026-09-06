@@ -1,16 +1,24 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
-async function postJson(path, body) {
+export class ApiError extends Error {
+  constructor(message, status) {
+    super(message)
+    this.status = status
+  }
+}
+
+async function request(method, path, body) {
   let res
   try {
     res = await fetch(`${API_URL}${path}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      method,
+      headers: body != null ? { 'Content-Type': 'application/json' } : undefined,
+      body: body != null ? JSON.stringify(body) : undefined,
     })
   } catch {
-    throw new Error(
+    throw new ApiError(
       'Could not reach the backend. Is it running on ' + API_URL + '?',
+      0,
     )
   }
 
@@ -27,11 +35,14 @@ async function postJson(path, body) {
     } catch {
       /* keep default detail */
     }
-    throw new Error(detail)
+    throw new ApiError(detail, res.status)
   }
 
+  if (res.status === 204) return null
   return res.json()
 }
+
+const postJson = (path, body) => request('POST', path, body)
 
 /**
  * Generate a database schema (+ SQL for every dialect) from a description.
@@ -74,3 +85,33 @@ export async function analyzeSchema(schema) {
   const { project_name, tables, relationships } = schema
   return postJson('/analyze-schema', { project_name, tables, relationships })
 }
+
+// ---- project persistence -------------------------------------------------
+
+const schemaPayload = (schema) => {
+  const { project_name, tables, relationships } = schema
+  return { project_name, tables, relationships }
+}
+
+export const listProjects = () => request('GET', '/projects')
+
+export const getProject = (id) => request('GET', `/projects/${id}`)
+
+export const createProject = ({ name, description, schema, sqlDialect }) =>
+  request('POST', '/projects', {
+    name,
+    description: description ?? '',
+    schema_data: schemaPayload(schema),
+    sql_dialect: sqlDialect ?? 'postgresql',
+  })
+
+export const updateProject = (id, { name, description, schema, sqlDialect }) => {
+  const body = {}
+  if (name !== undefined) body.name = name
+  if (description !== undefined) body.description = description
+  if (schema !== undefined) body.schema_data = schemaPayload(schema)
+  if (sqlDialect !== undefined) body.sql_dialect = sqlDialect
+  return request('PUT', `/projects/${id}`, body)
+}
+
+export const deleteProject = (id) => request('DELETE', `/projects/${id}`)

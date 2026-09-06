@@ -13,6 +13,8 @@ export default function useSchemaGenerator() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [schema, setSchema] = useState(null)
+  // The SQL dialect the user is viewing — also saved with a project.
+  const [sqlDialect, setSqlDialect] = useState('postgresql')
 
   // AI assistant (schema modification) — separate status from generation.
   const [messages, setMessages] = useState([])
@@ -110,6 +112,23 @@ export default function useSchemaGenerator() {
     }
   }
 
+  // Load a schema saved in a project. Regenerates SQL so the SQL view is
+  // in sync (projects store the schema structure, not the generated SQL).
+  const loadSchema = async (schemaData, dialect) => {
+    setError('')
+    setEditorError('')
+    setAssistantError('')
+    setMessages([])
+    if (dialect) setSqlDialect(dialect)
+    setSchema(schemaData)
+    try {
+      const compiled = await regenerateSql(schemaData)
+      setSchema((prev) => (prev === schemaData ? compiled : prev))
+    } catch {
+      // Leave the structure loaded even if SQL regeneration fails.
+    }
+  }
+
   return {
     idea,
     setIdea,
@@ -117,6 +136,9 @@ export default function useSchemaGenerator() {
     error,
     schema,
     generate,
+    sqlDialect,
+    setSqlDialect,
+    loadSchema,
     // assistant
     messages,
     assistantLoading,

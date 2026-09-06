@@ -5,6 +5,7 @@ import About from './components/About'
 import Footer from './components/Footer'
 import useSchemaGenerator from './hooks/useSchemaGenerator'
 import useSchemaAnalysis from './hooks/useSchemaAnalysis'
+import useProjects from './hooks/useProjects'
 
 export default function App() {
   const {
@@ -14,6 +15,9 @@ export default function App() {
     error,
     schema,
     generate,
+    sqlDialect,
+    setSqlDialect,
+    loadSchema,
     messages,
     assistantLoading,
     assistantError,
@@ -24,6 +28,12 @@ export default function App() {
   } = useSchemaGenerator()
 
   const analysis = useSchemaAnalysis(schema)
+  const projects = useProjects()
+
+  const loadProject = (project) => {
+    setIdea(project.description || '')
+    loadSchema(project.schema_data, project.sql_dialect)
+  }
 
   return (
     <div className="min-h-screen bg-slate-950">
@@ -36,6 +46,8 @@ export default function App() {
           loading={loading}
           error={error}
           schema={schema}
+          sqlDialect={sqlDialect}
+          onSqlDialectChange={setSqlDialect}
           messages={messages}
           assistantLoading={assistantLoading}
           assistantError={assistantError}
@@ -44,6 +56,8 @@ export default function App() {
           editorSyncing={editorSyncing}
           editorError={editorError}
           analysis={analysis}
+          projects={projects}
+          onLoadProject={loadProject}
         />
         <HowItWorks />
         <About />

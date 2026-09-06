@@ -11,9 +11,18 @@ const DIALECTS = [
 // Shows the deterministically generated DDL (from the backend) for the
 // selected database system, with a dialect switcher and a copy button.
 // Kept separate from the schema viewer and ER diagram.
-export default function SqlView({ sql }) {
+export default function SqlView({ sql, dialect: dialectProp, onDialectChange }) {
   const available = DIALECTS.filter((d) => typeof sql?.[d.key] === 'string')
-  const [dialect, setDialect] = useState('postgresql')
+  const [dialectState, setDialectState] = useState('postgresql')
+
+  // Controlled by the parent when `dialect`/`onDialectChange` are provided,
+  // otherwise self-managed. Keeping it in sync with a saved project.
+  const dialect = dialectProp ?? dialectState
+  const setDialect = (next) => {
+    setDialectState(next)
+    onDialectChange?.(next)
+  }
+
   const [copied, setCopied] = useState(false)
 
   // Fall back to the first available dialect if the selected one is missing.

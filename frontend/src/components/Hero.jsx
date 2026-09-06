@@ -7,6 +7,7 @@ import SqlView from './sql/SqlView'
 import AssistantChat from './assistant/AssistantChat'
 import SchemaEditor from './editor/SchemaEditor'
 import AnalysisPanel from './analysis/AnalysisPanel'
+import ProjectsBar from './projects/ProjectsBar'
 
 // Homepage hero: heading, description, idea composer, result, and example cards.
 export default function Hero({
@@ -16,6 +17,8 @@ export default function Hero({
   loading,
   error,
   schema,
+  sqlDialect,
+  onSqlDialectChange,
   messages,
   assistantLoading,
   assistantError,
@@ -24,6 +27,8 @@ export default function Hero({
   editorSyncing,
   editorError,
   analysis,
+  projects,
+  onLoadProject,
 }) {
   return (
     <section id="home" className="relative overflow-hidden">
@@ -47,8 +52,21 @@ export default function Hero({
           </p>
         </div>
 
+        {projects ? (
+          <div className="mx-auto mt-10 max-w-2xl">
+            <ProjectsBar
+              projects={projects}
+              schema={schema}
+              description={idea}
+              sqlDialect={sqlDialect}
+              onLoadProject={onLoadProject}
+              onNewProject={() => {}}
+            />
+          </div>
+        ) : null}
+
         <div
-          className="animate-fade-up mx-auto mt-10 max-w-2xl"
+          className="animate-fade-up mx-auto mt-6 max-w-2xl"
           style={{ animationDelay: '80ms' }}
         >
           <IdeaComposer
@@ -106,7 +124,11 @@ export default function Hero({
 
         {!loading && schema?.sql && Object.keys(schema.sql).length > 0 ? (
           <div className="mt-8">
-            <SqlView sql={schema.sql} />
+            <SqlView
+              sql={schema.sql}
+              dialect={sqlDialect}
+              onDialectChange={onSqlDialectChange}
+            />
           </div>
         ) : null}
 

@@ -7,10 +7,11 @@ PostgreSQL, MySQL, and SQLite.
 
 ## Tech Stack
 
-| Layer    | Tech                                            |
-| -------- | ---------------------------------------------- |
-| Frontend | React, Vite, JavaScript, Tailwind CSS           |
-| Backend  | Python, FastAPI, Uvicorn, Anthropic Claude API  |
+| Layer    | Tech                                                        |
+| -------- | ---------------------------------------------------------- |
+| Frontend | React, Vite, JavaScript, Tailwind CSS                       |
+| Backend  | Python, FastAPI, Uvicorn, Anthropic Claude API              |
+| Storage  | PostgreSQL via SQLAlchemy (optional — project persistence)  |
 
 ## Project Structure
 
@@ -24,13 +25,18 @@ SchemaForge-AI/
 │       └── data/             example ideas
 ├── backend/
 │   ├── app/
-│   │   ├── main.py           FastAPI app + CORS
-│   │   ├── config.py         env / .env loading (API key stays here)
-│   │   ├── api/routes.py     GET / , POST /generate-schema
+│   │   ├── main.py           FastAPI app + CORS + DB lifespan
+│   │   ├── config.py         env / .env loading (API key, DATABASE_URL)
+│   │   ├── api/
+│   │   │   ├── routes.py     schema generation / SQL / analysis endpoints
+│   │   │   └── projects.py   /projects CRUD
+│   │   ├── db/               SQLAlchemy engine, session, Project model
 │   │   ├── schemas/          Pydantic models
 │   │   └── services/
 │   │       ├── ai_service.py         Claude-powered schema generation
 │   │       ├── schema_validator.py   structural validation rules
+│   │       ├── schema_analyzer.py    read-only advisory analysis
+│   │       ├── project_service.py    project persistence CRUD
 │   │       └── sql/                  deterministic per-dialect SQL (pg / mysql / sqlite)
 │   ├── requirements.txt
 │   ├── .env.example
@@ -68,6 +74,22 @@ uvicorn app.main:app --reload --port 8000
 
 The API key is read only by the backend (`app/config.py`) and is never sent to
 the frontend.
+
+### Project persistence (optional)
+
+Schema generation, editing, SQL and analysis all work without a database.
+To let users **save / open / update / delete projects**, run PostgreSQL and set
+`DATABASE_URL` in `backend/.env`:
+
+```
+DATABASE_URL=postgresql+psycopg://schemaforge:schemaforge@localhost:5432/schemaforge
+```
+
+Tables are created automatically on startup. If `DATABASE_URL` is unset or the
+database is unreachable, the `/projects` endpoints return `503` and everything
+else keeps working. A stored project holds: id, name, original description,
+schema JSON, selected SQL dialect, created date, updated date. No authentication
+yet.
 
 ## Frontend — setup and run
 
@@ -166,9 +188,21 @@ list columns, repeating groups, many-to-many without a junction table, very
 wide tables. The **Schema Analysis** panel (frontend) re-runs automatically
 whenever the schema structure changes and groups the findings by severity.
 
+`/projects` — project persistence (requires `DATABASE_URL`; `503` otherwise):
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/projects` | list saved projects (summaries) |
+| `POST` | `/projects` | create — body `{ name, description, schema_data, sql_dialect }` → `201` |
+| `GET` | `/projects/{id}` | full project incl. `schema_json` |
+| `PUT` | `/projects/{id}` | partial update (any of the fields) |
+| `DELETE` | `/projects/{id}` | `204`, or `404` if not found |
+
 The frontend has a PostgreSQL / MySQL / SQLite switcher; changing it
 regenerates the displayed SQL instantly (no new request). Copy button copies
-the selected dialect.
+the selected dialect. The **Project** bar (top of the page) saves the current
+schema, description and selected dialect, and reloads them when a saved
+project is opened.
 
 Error responses use `{"detail": "..."}` — `422` for an empty/invalid body, or
 for a generated schema that fails structural validation (the `detail` string

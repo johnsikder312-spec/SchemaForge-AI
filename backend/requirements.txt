@@ -2,3 +2,5 @@ fastapi==0.115.6
 uvicorn[standard]==0.34.0
 python-dotenv==1.0.1
 anthropic==1.4.0
+SQLAlchemy==2.0.52
+psycopg[binary]==3.3.5
