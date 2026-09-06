@@ -4,8 +4,7 @@ const PLACEHOLDER = `Describe your application idea...
 
 Example: I want to build a food delivery application where users order food from restaurants.`
 
-// Controlled textarea + primary action.
-// Phase 3: wired to the backend via the parent's onGenerate handler.
+// Controlled textarea + primary action. Wired to the backend via onGenerate.
 export default function IdeaComposer({
   value,
   onChange,
@@ -23,6 +22,9 @@ export default function IdeaComposer({
         if (!disabled) onGenerate?.()
       }}
     >
+      <label htmlFor="idea" className="sr-only">
+        Application description
+      </label>
       <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-2 shadow-xl shadow-black/20 transition-colors focus-within:border-slate-600">
         <textarea
           id="idea"
@@ -32,6 +34,7 @@ export default function IdeaComposer({
           onChange={(e) => onChange(e.target.value)}
           placeholder={PLACEHOLDER}
           disabled={loading}
+          aria-label="Application description"
           className="w-full resize-y rounded-lg bg-transparent px-4 py-3 text-sm leading-relaxed text-slate-100 placeholder:text-slate-500 focus:outline-none disabled:opacity-60"
         />
         <div className="flex items-center justify-between gap-3 px-2 pb-1 pt-2">

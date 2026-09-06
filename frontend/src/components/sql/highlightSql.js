@@ -1,5 +1,6 @@
-// Tiny, dependency-free SQL highlighter for display only.
-// Returns an HTML string with inline-styled <span>s (no external CSS needed).
+// Tiny, dependency-free SQL highlighter for display only. Returns an HTML
+// string of <span class="sf-tok-*"> tokens; the colours (light + dark) are
+// defined in index.css.
 
 const KEYWORDS = new Set([
   'CREATE', 'TABLE', 'PRIMARY', 'KEY', 'FOREIGN', 'REFERENCES', 'ALTER', 'ADD',
@@ -17,14 +18,6 @@ const TYPES = new Set([
   'MONEY', 'INTERVAL', 'INET', 'CIDR',
 ])
 
-const COLORS = {
-  comment: '#64748b',
-  string: '#fbbf24',
-  number: '#fbbf24',
-  keyword: '#a5b4fc',
-  type: '#5eead4',
-}
-
 const escapeHtml = (s) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
@@ -36,14 +29,13 @@ export function highlightSql(sql) {
   return escapeHtml(sql).replace(
     TOKEN_RE,
     (match, comment, string, number, word) => {
-      if (comment) return `<span style="color:${COLORS.comment}">${comment}</span>`
-      if (string) return `<span style="color:${COLORS.string}">${string}</span>`
-      if (number) return `<span style="color:${COLORS.number}">${number}</span>`
+      if (comment) return `<span class="sf-tok-comment">${comment}</span>`
+      if (string) return `<span class="sf-tok-string">${string}</span>`
+      if (number) return `<span class="sf-tok-number">${number}</span>`
       const upper = word.toUpperCase()
       if (KEYWORDS.has(upper))
-        return `<span style="color:${COLORS.keyword};font-weight:600">${word}</span>`
-      if (TYPES.has(upper))
-        return `<span style="color:${COLORS.type}">${word}</span>`
+        return `<span class="sf-tok-keyword">${word}</span>`
+      if (TYPES.has(upper)) return `<span class="sf-tok-type">${word}</span>`
       return word
     },
   )

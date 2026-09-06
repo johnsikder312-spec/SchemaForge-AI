@@ -1,10 +1,5 @@
 import { downloadText, slugify } from '../../lib/download'
-
-const DIALECT_LABEL = {
-  postgresql: 'PostgreSQL',
-  mysql: 'MySQL',
-  sqlite: 'SQLite',
-}
+import { dialectLabel } from '../../lib/dialects'
 
 // Export the current schema to a file: SQL for the selected dialect, or the
 // schema structure as JSON. Purely client-side.
@@ -38,7 +33,7 @@ export default function ExportBar({ schema, dialect = 'postgresql' }) {
       </div>
       <div className="ml-auto flex flex-wrap gap-2">
         <button type="button" onClick={exportSql} disabled={!sql} className={btn}>
-          {DIALECT_LABEL[dialect] ?? dialect} SQL{' '}
+          {dialectLabel(dialect)} SQL{' '}
           <span className="text-slate-500">.sql</span>
         </button>
         <button type="button" onClick={exportJson} className={btn}>

@@ -1,10 +1,5 @@
 import ConfirmButton from '../editor/ConfirmButton'
-
-const DIALECT_LABEL = {
-  postgresql: 'PostgreSQL',
-  mysql: 'MySQL',
-  sqlite: 'SQLite',
-}
+import { dialectLabel } from '../../lib/dialects'
 
 function formatDate(iso) {
   const d = new Date(iso)
@@ -25,7 +20,7 @@ export default function ProjectCard({ project, onOpen, onDelete, busy }) {
           {project.name}
         </h3>
         <span className="shrink-0 rounded bg-slate-800 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide text-slate-400">
-          {DIALECT_LABEL[project.sql_dialect] ?? project.sql_dialect}
+          {dialectLabel(project.sql_dialect)}
         </span>
       </div>
 

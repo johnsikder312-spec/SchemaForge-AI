@@ -5,17 +5,106 @@
     Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
+/*
+  Theming
+  -------
+  The interface is designed dark-first, so the default (bare :root) palette is
+  Tailwind's own. Light mode is opt-in: index.html sets `data-theme` on <html>
+  before first paint (stored choice, else the OS preference), and the toggle in
+  the navbar flips it. Light mode only *remaps the colour tokens* the app uses
+  — Tailwind v4 emits `var(--color-*)` for every utility, so no component markup
+  changes.
+*/
+
+:root {
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  /* Slate ramp — inverted so backgrounds go light and text goes dark. */
+  --color-slate-950: oklch(98.5% 0.002 247.86); /* page background   */
+  --color-slate-900: oklch(97% 0.004 247.86); /* panel surface     */
+  --color-slate-800: oklch(90.5% 0.008 255.5); /* borders / headers */
+  --color-slate-700: oklch(83% 0.013 252.9); /* input borders     */
+  --color-slate-600: oklch(62% 0.03 257.4); /* faint text        */
+  --color-slate-500: oklch(52% 0.036 257.4); /* faint text        */
+  --color-slate-400: oklch(44% 0.04 257.3); /* muted text        */
+  --color-slate-300: oklch(35% 0.04 257.3); /* secondary text    */
+  --color-slate-200: oklch(24% 0.04 260); /* body text         */
+  --color-slate-100: oklch(18% 0.04 264.7); /* strong text       */
+  --color-slate-50: oklch(15% 0.03 264.7);
+  --color-white: oklch(17% 0.03 264.7); /* headings (text-white) */
+
+  /* Semantic scales — light equivalents of the tinted panels the app uses. */
+  --color-red-300: oklch(50% 0.18 26);
+  --color-red-400: oklch(55% 0.2 26);
+  --color-red-800: oklch(87% 0.05 26);
+  --color-red-900: oklch(92% 0.04 26);
+  --color-red-950: oklch(96% 0.02 26);
+
+  --color-amber-300: oklch(52% 0.12 62);
+  --color-amber-800: oklch(87% 0.06 75);
+  --color-amber-950: oklch(96% 0.03 85);
+
+  --color-sky-300: oklch(48% 0.11 240);
+  --color-sky-800: oklch(87% 0.05 235);
+  --color-sky-950: oklch(96% 0.025 235);
+}
+
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  background-color: #020617; /* slate-950 */
-  color: #e2e8f0; /* slate-200 */
+  background-color: var(--color-slate-950);
+  color: var(--color-slate-200);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* Subtle entrance animation, used sparingly across sections. */
+/* Visible keyboard focus for every interactive element. */
+:where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-indigo-400);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/*
+  In light mode `--color-white` is remapped to a dark ink so `text-white`
+  headings read correctly — but the accent-coloured buttons still need real
+  white text on the indigo fill.
+*/
+:root[data-theme="light"] :is(.bg-indigo-500, .bg-indigo-400) {
+  color: #fff;
+}
+
+/* ---- SQL syntax highlighting (theme-aware, used by highlightSql.js) ---- */
+.sf-tok-comment {
+  color: var(--color-slate-500);
+  font-style: italic;
+}
+.sf-tok-string,
+.sf-tok-number {
+  color: oklch(62% 0.16 58);
+}
+.sf-tok-keyword {
+  color: var(--color-indigo-400);
+  font-weight: 600;
+}
+.sf-tok-type {
+  color: oklch(58% 0.12 178);
+}
+:root[data-theme="light"] .sf-tok-string,
+:root[data-theme="light"] .sf-tok-number {
+  color: oklch(52% 0.15 55);
+}
+:root[data-theme="light"] .sf-tok-type {
+  color: oklch(48% 0.11 182);
+}
+
+/* ---- Motion ---- */
 @keyframes fade-up {
   from {
     opacity: 0;
@@ -32,10 +121,14 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-fade-up {
-    animation: none;
-  }
   html {
     scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

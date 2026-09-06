@@ -8,6 +8,7 @@ import Dashboard from './components/dashboard/Dashboard'
 import useSchemaGenerator from './hooks/useSchemaGenerator'
 import useSchemaAnalysis from './hooks/useSchemaAnalysis'
 import useProjects from './hooks/useProjects'
+import useTheme from './hooks/useTheme'
 
 export default function App() {
   const {
@@ -32,6 +33,7 @@ export default function App() {
 
   const analysis = useSchemaAnalysis(schema)
   const projects = useProjects()
+  const { theme, toggle: toggleTheme } = useTheme()
   const [view, setView] = useState('workspace')
 
   const loadProject = (project) => {
@@ -53,7 +55,12 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-950">
-      <Navbar view={view} onNavigate={setView} />
+      <Navbar
+        view={view}
+        onNavigate={setView}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
       <main>
         {view === 'dashboard' ? (
           <Dashboard

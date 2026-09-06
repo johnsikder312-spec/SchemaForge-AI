@@ -1,12 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { highlightSql } from './highlightSql'
-
-// Dialects the backend generates SQL for, in display order.
-const DIALECTS = [
-  { key: 'postgresql', label: 'PostgreSQL' },
-  { key: 'mysql', label: 'MySQL' },
-  { key: 'sqlite', label: 'SQLite' },
-]
+import { DIALECTS } from '../../lib/dialects'
 
 // Shows the deterministically generated DDL (from the backend) for the
 // selected database system, with a dialect switcher and a copy button.
