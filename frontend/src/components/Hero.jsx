@@ -6,6 +6,7 @@ import ERDiagram from './er/ERDiagram'
 import SqlView from './sql/SqlView'
 import AssistantChat from './assistant/AssistantChat'
 import SchemaEditor from './editor/SchemaEditor'
+import AnalysisPanel from './analysis/AnalysisPanel'
 
 // Homepage hero: heading, description, idea composer, result, and example cards.
 export default function Hero({
@@ -22,6 +23,7 @@ export default function Hero({
   onEdit,
   editorSyncing,
   editorError,
+  analysis,
 }) {
   return (
     <section id="home" className="relative overflow-hidden">
@@ -61,6 +63,18 @@ export default function Hero({
         <div className="mt-10">
           <SchemaViewer schema={schema} loading={loading} />
         </div>
+
+        {!loading && schema ? (
+          <div className="mt-8">
+            <AnalysisPanel
+              findings={analysis.findings}
+              counts={analysis.counts}
+              loading={analysis.loading}
+              error={analysis.error}
+              onRefresh={analysis.refresh}
+            />
+          </div>
+        ) : null}
 
         {!loading && schema ? (
           <div className="mt-8">

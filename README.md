@@ -153,6 +153,19 @@ tables/columns (invalid references are structurally prevented); deleting a
 table asks for confirmation. Every edit updates the schema state, which
 refreshes the viewer, ER diagram and SQL.
 
+`POST /analyze-schema` — read-only schema analysis. No AI, never modifies the
+schema. Body is a schema; response is
+`{ findings: [...], counts: { error, warning, suggestion } }`. Each finding
+has `category` (error / warning / suggestion), `title`, `explanation`,
+`table` (affected, or null), and `solution`.
+
+Checks: missing / composite primary keys, duplicate columns, invalid or
+unlinked foreign keys, unused / duplicate / unreflected relationships,
+isolated tables, repeated columns and identical tables (redundant data),
+list columns, repeating groups, many-to-many without a junction table, very
+wide tables. The **Schema Analysis** panel (frontend) re-runs automatically
+whenever the schema structure changes and groups the findings by severity.
+
 The frontend has a PostgreSQL / MySQL / SQLite switcher; changing it
 regenerates the displayed SQL instantly (no new request). Copy button copies
 the selected dialect.

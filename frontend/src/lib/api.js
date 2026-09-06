@@ -64,3 +64,13 @@ export async function regenerateSql(schema) {
   const { project_name, tables, relationships } = schema
   return postJson('/generate-sql', { project_name, tables, relationships })
 }
+
+/**
+ * Analyze a schema for problems (read-only, no AI).
+ * @param {object} schema  { project_name, tables, relationships }
+ * @returns {Promise<{ findings: object[], counts: Record<string, number> }>}
+ */
+export async function analyzeSchema(schema) {
+  const { project_name, tables, relationships } = schema
+  return postJson('/analyze-schema', { project_name, tables, relationships })
+}

@@ -4,6 +4,7 @@ import HowItWorks from './components/HowItWorks'
 import About from './components/About'
 import Footer from './components/Footer'
 import useSchemaGenerator from './hooks/useSchemaGenerator'
+import useSchemaAnalysis from './hooks/useSchemaAnalysis'
 
 export default function App() {
   const {
@@ -21,6 +22,8 @@ export default function App() {
     editorSyncing,
     editorError,
   } = useSchemaGenerator()
+
+  const analysis = useSchemaAnalysis(schema)
 
   return (
     <div className="min-h-screen bg-slate-950">
@@ -40,6 +43,7 @@ export default function App() {
           onEdit={applyEdit}
           editorSyncing={editorSyncing}
           editorError={editorError}
+          analysis={analysis}
         />
         <HowItWorks />
         <About />

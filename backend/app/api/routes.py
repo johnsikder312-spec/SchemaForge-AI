@@ -10,6 +10,7 @@ from app.schemas.schema_models import (
 )
 from app.services import ai_service
 from app.services.ai_service import AIServiceError
+from app.services.schema_analyzer import AnalysisResult, analyze_schema
 from app.services.schema_validator import SchemaValidationError, validate_schema
 from app.services.sql import generate_all_sql
 
@@ -61,6 +62,12 @@ def generate_sql_endpoint(payload: SchemaResponse) -> GeneratedSchema:
         logger.warning("Edited schema validation failed: %s", exc)
         raise HTTPException(status_code=422, detail=str(exc))
     return _with_sql(payload)
+
+
+@router.post("/analyze-schema", response_model=AnalysisResult)
+def analyze_schema_endpoint(payload: SchemaResponse) -> AnalysisResult:
+    """Read-only advisory analysis of a schema. No AI, never modifies it."""
+    return analyze_schema(payload)
 
 
 @router.post("/modify-schema", response_model=GeneratedSchema)
