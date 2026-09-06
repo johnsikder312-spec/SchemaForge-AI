@@ -6,8 +6,18 @@ import Footer from './components/Footer'
 import useSchemaGenerator from './hooks/useSchemaGenerator'
 
 export default function App() {
-  const { idea, setIdea, loading, error, schema, generate } =
-    useSchemaGenerator()
+  const {
+    idea,
+    setIdea,
+    loading,
+    error,
+    schema,
+    generate,
+    messages,
+    assistantLoading,
+    assistantError,
+    sendMessage,
+  } = useSchemaGenerator()
 
   return (
     <div className="min-h-screen bg-slate-950">
@@ -20,6 +30,10 @@ export default function App() {
           loading={loading}
           error={error}
           schema={schema}
+          messages={messages}
+          assistantLoading={assistantLoading}
+          assistantError={assistantError}
+          onSendMessage={sendMessage}
         />
         <HowItWorks />
         <About />

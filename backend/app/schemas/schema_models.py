@@ -47,6 +47,20 @@ class SchemaResponse(BaseModel):
     relationships: list[Relationship] = Field(default_factory=list)
 
 
+class ModifySchemaRequest(BaseModel):
+    current_schema: SchemaResponse = Field(
+        description="The full existing schema to modify."
+    )
+    request: str = Field(
+        ...,
+        min_length=1,
+        description=(
+            "Plain-language modification request, e.g. "
+            "'Add a payments table.' or 'Connect payments with orders.'"
+        ),
+    )
+
+
 class GeneratedSchema(SchemaResponse):
     """The API response: the validated schema plus deterministically
     generated SQL for every supported dialect. `SchemaResponse` remains the

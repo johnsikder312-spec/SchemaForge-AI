@@ -81,7 +81,9 @@ npm run dev
 ```
 
 Open http://localhost:5173 → describe an application → **Generate Database** →
-the generated tables render as cards.
+the tables, ER diagram and SQL render. Then use the **AI Database Assistant**
+chat to change the schema in plain language ("Add a payments table.",
+"Connect payments with orders.") — the viewer, ER diagram and SQL all refresh.
 
 ## API
 
@@ -121,6 +123,22 @@ entry per dialect. Each dialect has its own generator
 | PostgreSQL | `SERIAL` / `BIGSERIAL` | native (`BOOLEAN`, `JSONB`, `UUID`, `TIMESTAMP WITH TIME ZONE`) | `ALTER TABLE ... ADD CONSTRAINT` |
 | MySQL | `INT ... AUTO_INCREMENT` | `TINYINT(1)`, `JSON`, `CHAR(36)`, `DATETIME`, `DECIMAL` | `ALTER TABLE ... ADD CONSTRAINT` |
 | SQLite | `INTEGER PRIMARY KEY AUTOINCREMENT` | affinity: `TEXT` / `INTEGER` / `NUMERIC` / `REAL` / `BLOB` | inline `FOREIGN KEY (...)` in `CREATE TABLE` |
+
+`POST /modify-schema` — AI Database Assistant.
+
+```json
+// request
+{
+  "current_schema": { "project_name": "...", "tables": [ ... ], "relationships": [ ... ] },
+  "request": "Add a payments table connected to orders."
+}
+// response: same shape as /generate-schema (the COMPLETE updated schema + regenerated sql)
+```
+
+The AI is instructed to return the entire schema and preserve every table,
+column and relationship the request does not touch. The result is validated
+the same way as generation (`422` on a rule violation, `502` on an AI
+failure). No persistence — chat history lives only in the browser session.
 
 The frontend has a PostgreSQL / MySQL / SQLite switcher; changing it
 regenerates the displayed SQL instantly (no new request). Copy button copies

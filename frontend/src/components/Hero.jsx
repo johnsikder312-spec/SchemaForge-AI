@@ -4,6 +4,7 @@ import ExampleGrid from './ExampleGrid'
 import SchemaViewer from './schema/SchemaViewer'
 import ERDiagram from './er/ERDiagram'
 import SqlView from './sql/SqlView'
+import AssistantChat from './assistant/AssistantChat'
 
 // Homepage hero: heading, description, idea composer, result, and example cards.
 export default function Hero({
@@ -13,6 +14,10 @@ export default function Hero({
   loading,
   error,
   schema,
+  messages,
+  assistantLoading,
+  assistantError,
+  onSendMessage,
 }) {
   return (
     <section id="home" className="relative overflow-hidden">
@@ -52,6 +57,17 @@ export default function Hero({
         <div className="mt-10">
           <SchemaViewer schema={schema} loading={loading} />
         </div>
+
+        {!loading && schema ? (
+          <div className="mt-8">
+            <AssistantChat
+              messages={messages}
+              loading={assistantLoading}
+              error={assistantError}
+              onSend={onSendMessage}
+            />
+          </div>
+        ) : null}
 
         {!loading && schema ? (
           <div className="mt-8">
