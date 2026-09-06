@@ -17,6 +17,9 @@ export default function App() {
     assistantLoading,
     assistantError,
     sendMessage,
+    applyEdit,
+    editorSyncing,
+    editorError,
   } = useSchemaGenerator()
 
   return (
@@ -34,6 +37,9 @@ export default function App() {
           assistantLoading={assistantLoading}
           assistantError={assistantError}
           onSendMessage={sendMessage}
+          onEdit={applyEdit}
+          editorSyncing={editorSyncing}
+          editorError={editorError}
         />
         <HowItWorks />
         <About />

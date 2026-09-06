@@ -6,10 +6,11 @@ from app.schemas.schema_models import (
     GeneratedSchema,
     ModifySchemaRequest,
     SchemaRequest,
+    SchemaResponse,
 )
 from app.services import ai_service
 from app.services.ai_service import AIServiceError
-from app.services.schema_validator import SchemaValidationError
+from app.services.schema_validator import SchemaValidationError, validate_schema
 from app.services.sql import generate_all_sql
 
 logger = logging.getLogger("schemaforge.api")
@@ -45,6 +46,21 @@ def generate_schema(payload: SchemaRequest) -> GeneratedSchema:
         )
 
     return _with_sql(schema)
+
+
+@router.post("/generate-sql", response_model=GeneratedSchema)
+def generate_sql_endpoint(payload: SchemaResponse) -> GeneratedSchema:
+    """Validate a (manually edited) schema and regenerate its SQL. No AI."""
+    if not payload.tables:
+        raise HTTPException(
+            status_code=422, detail="The schema has no tables."
+        )
+    issues = validate_schema(payload)
+    if issues:
+        exc = SchemaValidationError(issues)
+        logger.warning("Edited schema validation failed: %s", exc)
+        raise HTTPException(status_code=422, detail=str(exc))
+    return _with_sql(payload)
 
 
 @router.post("/modify-schema", response_model=GeneratedSchema)

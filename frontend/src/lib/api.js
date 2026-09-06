@@ -54,3 +54,13 @@ export async function modifySchema(currentSchema, request) {
     request,
   })
 }
+
+/**
+ * Validate a manually edited schema and regenerate its SQL (no AI).
+ * Returns the schema + fresh `sql`, or throws with the validation problems.
+ * @param {object} schema  { project_name, tables, relationships }
+ */
+export async function regenerateSql(schema) {
+  const { project_name, tables, relationships } = schema
+  return postJson('/generate-sql', { project_name, tables, relationships })
+}

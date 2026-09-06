@@ -81,9 +81,10 @@ npm run dev
 ```
 
 Open http://localhost:5173 → describe an application → **Generate Database** →
-the tables, ER diagram and SQL render. Then use the **AI Database Assistant**
-chat to change the schema in plain language ("Add a payments table.",
-"Connect payments with orders.") — the viewer, ER diagram and SQL all refresh.
+the tables, ER diagram and SQL render. Then change the schema either with the
+**AI Database Assistant** chat ("Add a payments table.") or the **Manual
+Schema Editor** (add/rename/delete tables and columns, toggle keys) — the
+viewer, ER diagram and SQL all refresh.
 
 ## API
 
@@ -139,6 +140,18 @@ The AI is instructed to return the entire schema and preserve every table,
 column and relationship the request does not touch. The result is validated
 the same way as generation (`422` on a rule violation, `502` on an AI
 failure). No persistence — chat history lives only in the browser session.
+
+`POST /generate-sql` — validate a manually edited schema and regenerate its
+SQL. No AI. Body is a schema (`{ project_name, tables, relationships }`);
+response is the same shape as `/generate-schema`. `422` (with the itemised
+problem list) if the schema breaks a validation rule.
+
+The **Manual Schema Editor** (frontend, separate from the AI assistant) uses
+this endpoint: add / delete / rename tables and columns, change data types,
+toggle primary and foreign keys. Foreign-key targets are picked from existing
+tables/columns (invalid references are structurally prevented); deleting a
+table asks for confirmation. Every edit updates the schema state, which
+refreshes the viewer, ER diagram and SQL.
 
 The frontend has a PostgreSQL / MySQL / SQLite switcher; changing it
 regenerates the displayed SQL instantly (no new request). Copy button copies
