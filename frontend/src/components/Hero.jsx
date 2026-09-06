@@ -2,6 +2,7 @@ import Container from './Container'
 import IdeaComposer from './IdeaComposer'
 import ExampleGrid from './ExampleGrid'
 import SchemaViewer from './schema/SchemaViewer'
+import ERDiagram from './er/ERDiagram'
 
 // Homepage hero: heading, description, idea composer, result, and example cards.
 export default function Hero({
@@ -50,6 +51,12 @@ export default function Hero({
         <div className="mt-10">
           <SchemaViewer schema={schema} loading={loading} />
         </div>
+
+        {!loading && schema ? (
+          <div className="mt-8">
+            <ERDiagram schema={schema} />
+          </div>
+        ) : null}
 
         <div
           className="animate-fade-up mt-14"
