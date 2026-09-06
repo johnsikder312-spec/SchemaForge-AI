@@ -2,10 +2,11 @@ import logging
 
 from fastapi import APIRouter, HTTPException
 
-from app.schemas.schema_models import SchemaRequest, SchemaResponse
+from app.schemas.schema_models import GeneratedSchema, SchemaRequest
 from app.services import ai_service
 from app.services.ai_service import AIServiceError
 from app.services.schema_validator import SchemaValidationError
+from app.services.sql_generator import generate_postgres_sql
 
 logger = logging.getLogger("schemaforge.api")
 
@@ -17,10 +18,10 @@ def read_root():
     return {"message": "SchemaForge AI Backend Running"}
 
 
-@router.post("/generate-schema", response_model=SchemaResponse)
-def generate_schema(payload: SchemaRequest) -> SchemaResponse:
+@router.post("/generate-schema", response_model=GeneratedSchema)
+def generate_schema(payload: SchemaRequest) -> GeneratedSchema:
     try:
-        return ai_service.generate_schema(payload.description)
+        schema = ai_service.generate_schema(payload.description)
     except SchemaValidationError as exc:
         # The AI produced a schema that breaks one or more validation rules.
         # Report every problem; the schema is never silently corrected.
@@ -36,3 +37,7 @@ def generate_schema(payload: SchemaRequest) -> SchemaResponse:
             status_code=500,
             detail="Unexpected error while generating the schema.",
         )
+
+    # Deterministic, non-AI SQL generation from the validated schema.
+    sql = generate_postgres_sql(schema)
+    return GeneratedSchema(**schema.model_dump(), sql=sql)

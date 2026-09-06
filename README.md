@@ -99,9 +99,16 @@ the generated tables render as cards.
     { "source_table": "orders", "source_column": "user_id",
       "target_table": "users", "target_column": "id",
       "relationship_type": "many_to_one" }
-  ]
+  ],
+  "sql": "-- PostgreSQL schema for ...\nCREATE TABLE users (\n    id SERIAL PRIMARY KEY,\n    ...\n);\n..."
 }
 ```
+
+`sql` is generated deterministically from the validated schema (no AI) —
+PostgreSQL `CREATE TABLE` statements with primary keys, plus `ALTER TABLE ...
+ADD CONSTRAINT ... FOREIGN KEY` for each relationship. Integer sole primary
+keys become `SERIAL` / `BIGSERIAL`. The frontend shows it with a copy button
+and refreshes it whenever a new schema is generated.
 
 Error responses use `{"detail": "..."}` — `422` for an empty/invalid body, or
 for a generated schema that fails structural validation (the `detail` string

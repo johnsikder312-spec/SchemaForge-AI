@@ -45,3 +45,13 @@ class SchemaResponse(BaseModel):
     project_name: str = ""
     tables: list[Table] = Field(default_factory=list)
     relationships: list[Relationship] = Field(default_factory=list)
+
+
+class GeneratedSchema(SchemaResponse):
+    """The API response: the validated schema plus deterministically
+    generated SQL. `SchemaResponse` remains the AI output contract."""
+
+    sql: str = Field(
+        default="",
+        description="Deterministically generated PostgreSQL DDL for the schema.",
+    )

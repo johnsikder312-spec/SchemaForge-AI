@@ -3,6 +3,7 @@ import IdeaComposer from './IdeaComposer'
 import ExampleGrid from './ExampleGrid'
 import SchemaViewer from './schema/SchemaViewer'
 import ERDiagram from './er/ERDiagram'
+import SqlView from './sql/SqlView'
 
 // Homepage hero: heading, description, idea composer, result, and example cards.
 export default function Hero({
@@ -55,6 +56,12 @@ export default function Hero({
         {!loading && schema ? (
           <div className="mt-8">
             <ERDiagram schema={schema} />
+          </div>
+        ) : null}
+
+        {!loading && schema?.sql ? (
+          <div className="mt-8">
+            <SqlView sql={schema.sql} />
           </div>
         ) : null}
 
