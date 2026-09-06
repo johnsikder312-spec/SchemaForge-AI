@@ -1,28 +1,27 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import Navbar from './components/Navbar'
+import Hero from './components/Hero'
+import HowItWorks from './components/HowItWorks'
+import About from './components/About'
+import Footer from './components/Footer'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+export default function App() {
+  const [idea, setIdea] = useState('')
 
-function App() {
-  const [status, setStatus] = useState('checking...')
-
-  useEffect(() => {
-    fetch(`${API_URL}/`)
-      .then((res) => res.json())
-      .then((data) => setStatus(data.message))
-      .catch(() => setStatus('backend unreachable'))
-  }, [])
+  // Phase 2: no backend / AI yet. Generation is a placeholder.
+  const handleGenerate = () => {
+    console.log('Generate Database clicked. Idea:', idea)
+  }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center gap-4">
-      <h1 className="text-4xl font-bold tracking-tight">SchemaForge AI</h1>
-      <p className="text-slate-400">
-        Describe an app idea in natural language. Schema generation comes later.
-      </p>
-      <span className="rounded-full bg-slate-800 px-4 py-1 text-sm">
-        Backend: {status}
-      </span>
+    <div className="min-h-screen bg-slate-950">
+      <Navbar />
+      <main>
+        <Hero idea={idea} onIdeaChange={setIdea} onGenerate={handleGenerate} />
+        <HowItWorks />
+        <About />
+      </main>
+      <Footer />
     </div>
   )
 }
-
-export default App
