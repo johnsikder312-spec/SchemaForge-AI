@@ -1,9 +1,17 @@
 import Container from './Container'
 import IdeaComposer from './IdeaComposer'
 import ExampleGrid from './ExampleGrid'
+import SchemaResult from './SchemaResult'
 
-// Homepage hero: heading, description, idea composer, and example cards.
-export default function Hero({ idea, onIdeaChange, onGenerate }) {
+// Homepage hero: heading, description, idea composer, result, and example cards.
+export default function Hero({
+  idea,
+  onIdeaChange,
+  onGenerate,
+  loading,
+  error,
+  schema,
+}) {
   return (
     <section id="home" className="relative overflow-hidden">
       {/* Very subtle radial backdrop — no loud gradients. */}
@@ -34,7 +42,10 @@ export default function Hero({ idea, onIdeaChange, onGenerate }) {
             value={idea}
             onChange={onIdeaChange}
             onGenerate={onGenerate}
+            loading={loading}
+            error={error}
           />
+          <SchemaResult schema={schema} />
         </div>
 
         <div
