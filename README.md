@@ -210,6 +210,11 @@ and SQL dialect, with Open / Delete actions and a "New project" button. It has
 loading (skeletons), empty, error (with retry) and "persistence disabled"
 states.
 
+The **Export** panel downloads the current schema to a file, entirely in the
+browser (no backend call): the SQL for the selected dialect as
+`<project>-<dialect>.sql`, or the schema structure as `<project>-schema.json`
+(`{ project_name, tables, relationships }` — no generated SQL, no secrets).
+
 Error responses use `{"detail": "..."}` — `422` for an empty/invalid body, or
 for a generated schema that fails structural validation (the `detail` string
 lists every problem, one per line; the schema is never silently corrected),
