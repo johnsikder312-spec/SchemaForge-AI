@@ -1,7 +1,7 @@
 """Pydantic models for the schema-generation API.
 
-Phase 3: no AI yet. The response shape here is what later phases will fill in
-with a real model-generated schema.
+`SchemaResponse` is both the API response model and the structure the AI is
+asked to produce; the AI output is validated against it.
 """
 
 from pydantic import BaseModel, Field
@@ -21,25 +21,27 @@ class SchemaRequest(BaseModel):
 
 class Column(BaseModel):
     name: str
-    type: str
+    type: str = Field(description="SQL data type, e.g. INTEGER, VARCHAR(100).")
     primary_key: bool = False
     foreign_key: bool = False
 
 
 class Table(BaseModel):
     name: str
-    columns: list[Column]
+    columns: list[Column] = Field(default_factory=list)
 
 
 class Relationship(BaseModel):
-    from_table: str
-    from_column: str
-    to_table: str
-    to_column: str
-    type: str = "many_to_one"
+    source_table: str
+    source_column: str
+    target_table: str
+    target_column: str
+    relationship_type: str = Field(
+        description="one_to_one | one_to_many | many_to_one | many_to_many",
+    )
 
 
 class SchemaResponse(BaseModel):
-    project_name: str
-    tables: list[Table]
-    relationships: list[Relationship] = []
+    project_name: str = ""
+    tables: list[Table] = Field(default_factory=list)
+    relationships: list[Relationship] = Field(default_factory=list)
